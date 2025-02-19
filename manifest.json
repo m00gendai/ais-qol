@@ -1,0 +1,26 @@
+{
+	"manifest_version": 3,
+	"name": "AIS Quality of Life",
+	"description": "A collection of Quality of Life Tools for AIS",
+	"author": "Marcel Weber",
+	"homepage_url": "https://https://github.com/m00gendai",
+	"version": "1.0",
+	"action": {
+		"default_popup": "popup.html",
+		"default_icon": "128.png"
+	},
+	"content_scripts": [
+		{
+		  "js": ["content-script.js"],
+		  "matches": [
+			"https://aimconnect.lightning.force.com/lightning*"
+		  ]
+		}
+	],
+	"permissions": [
+		"storage", "activeTab"
+	],
+	"host_permissions": [
+		"https://aimconnect.lightning.force.com/lightning*"
+	]	
+}
