@@ -42,7 +42,7 @@ width: 210mm;
 		html += `<div class="bodyContainer">`
 		html += `<h1 style="color: red;">Case ${caseNumber}</h1>`
 		
-		const addnData = document.querySelector("records-record-layout-block")
+		const addnData = section.querySelector("records-record-layout-block")
 		const addnDataLabels = addnData.querySelectorAll("dt")
 		const addnDataContent = addnData.querySelectorAll("dd")
 
