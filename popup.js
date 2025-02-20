@@ -1,8 +1,6 @@
-const toggle = document.getElementById("toggle");
-const toggleButton = document.getElementById("overlay");
+const toggle_declutterer = document.getElementById("toggle_declutterer");
+const toggleButton_declutterer = document.getElementById("overlay_declutterer");
 const svg = document.getElementById("offButton");
-const inputField = document.getElementById("prozent")
-const confirmButton = document.getElementById("confirm")
 
 // Returns current tab id
 async function getCurrentTab() {
@@ -15,16 +13,16 @@ async function getCurrentTab() {
 (async () => {
 	
 	// Gets and sets the toggle status
-	const result = await chrome.storage.local.get(["status"])
-	if(result.status === undefined || result.status[0] === "0"){
-		toggle.value = 0
+	const result = await chrome.storage.local.get(["status_declutterer"])
+	if(result.status_declutterer === undefined || result.status_declutterer[0] === "0"){
+		toggle_declutterer.value = 0
 		svg.setAttribute("stroke", "red");
-		toggleButton.style.boxShadow = "0px 0px 5px 2px red";
+		toggleButton_declutterer.style.boxShadow = "0px 0px 5px 2px red";
 
-	} else if(result.status[0] === "1"){
-		toggle.value = 1
+	} else if(result.status_declutterer[0] === "1"){
+		toggle_declutterer.value = 1
 		svg.setAttribute("stroke", "green");
-		toggleButton.style.boxShadow = "0px 0px 5px 2px lime";
+		toggleButton_declutterer.style.boxShadow = "0px 0px 5px 2px lime";
 		
 	}
 	
@@ -32,21 +30,21 @@ async function getCurrentTab() {
 })()
 
 // Handles state change of the toggle element and inserts styles accordingly
-document.getElementById("overlay").addEventListener("click", async function(){
+document.getElementById("overlay_declutterer").addEventListener("click", async function(){
+	console.log("Click")
 	const tab = await getCurrentTab()
-	if(toggle.value === "0"){
-		toggle.value = "1"
+	if(toggle_declutterer.value === "0"){
+		toggle_declutterer.value = "1"
 		svg.setAttribute("stroke", "green");
-		toggleButton.style.boxShadow = "0px 0px 5px 2px lime";
-	
-		const response = await chrome.tabs.sendMessage(tab, {toggle: "on"}).catch(() => {});
+		toggleButton_declutterer.style.boxShadow = "0px 0px 5px 2px lime";
+		const response = await chrome.tabs.sendMessage(tab, {toggle_declutterer: "on"}).catch(() => {});
   	}
-    else if(toggle.value === "1"){
-		toggle.value = "0"
+    else if(toggle_declutterer.value === "1"){
+		toggle_declutterer.value = "0"
 		svg.setAttribute("stroke", "red");
-		toggleButton.style.boxShadow = "0px 0px 5px 2px red";
+		toggleButton_declutterer.style.boxShadow = "0px 0px 5px 2px red";
 		
-		const response = await chrome.tabs.sendMessage(tab, {toggle: "off"}).catch(() => {});
+		const response = await chrome.tabs.sendMessage(tab, {toggle_declutterer: "off"}).catch(() => {});
     }
-	chrome.storage.local.set({ "status": [toggle.value, tab] })
+	chrome.storage.local.set({ "status_declutterer": [toggle_declutterer.value, tab] })
 })
