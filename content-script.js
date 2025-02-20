@@ -25,8 +25,21 @@ function buttonize(header){
 		let html = `<!DOCTYPE html>
 <html><head>
 		<title>${caseNumber}</title>
-		 </head><body style="width: 210mm;">`
-		
+		<style>
+.bodyContainer {
+width: 210mm;
+  max-width: 210mm;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.bodyContainer img {
+  max-width: 100% !important;
+    height: auto !important;
+    box-sizing: inherit !important;
+}</style>
+		 </head><body>`
+		html += `<div class="bodyContainer">`
 		html += `<h1 style="color: red;">Case ${caseNumber}</h1>`
 		
 		const addnData = document.querySelector("records-record-layout-block")
@@ -48,7 +61,7 @@ html += `<div style="width: 50%; display: flex; padding: 0 0 0.25rem 0;">
 
 html += `</div>`;
 html += data.getAttribute("value");
-html += `</body></html>`; // Correctly close body and html
+html += `</div></body></html>`; // Correctly close body and html
 	const newWindow = window.open(); // Open a new blank window/tab
 newWindow.document.open(); // Open the document stream
 newWindow.document.write(html); // Write the HTML string
@@ -60,11 +73,11 @@ newWindow.document.close(); // Close the document stream
 (async () => {
 	
 	// Checks the toggle state and either starts or ends the Mutation Observer
-	const result = await chrome.storage.local.get(["status"])
-	if(result.status === undefined || result.status[0] === "0"){
+	const result = await chrome.storage.local.get(["status_declutterer"])
+	if(result.status_declutterer === undefined || result.status_declutterer[0] === "0"){
 		return
 	}
-	if(result.status[0] === "1"){
+	if(result.status_declutterer[0] === "1"){
 		
 		// If its ON, it also calls the injection function
 console.log("localstorage ON")
@@ -99,10 +112,10 @@ if (header) {
 
 // Listens for messages from the toggle state and Percentage Input Field Amends
 chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
-	
+	console.log(request)
 
 		//If the message carries a toggle state and it is ON, call the injection function and start the Mutation Observer
-		if(request.toggle === "on"){
+		if(request.toggle_declutterer === "on"){
 			console.log("action ON")
 			const header = document.querySelector("emailui-rich-text-output");
 			if(header){
@@ -111,7 +124,7 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 		} 
 		
 		//If the message carries a toggle state and it is OFF, disconnet the Mutation Observer and remove the additional injected row if it exists
-		if(request.toggle === "off"){
+		if(request.toggle_declutterer === "off"){
 			console.log("action OFF")
 			const btn = document.getElementById("extensionPrintButton")
 			if(btn !== null){
