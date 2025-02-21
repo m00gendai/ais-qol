@@ -23,10 +23,7 @@ async function getCurrentTab() {
 		toggle_declutterer.value = 1
 		svg.setAttribute("stroke", "green");
 		toggleButton_declutterer.style.boxShadow = "0px 0px 5px 2px lime";
-		
 	}
-	
-
 })()
 
 // Handles state change of the toggle element and inserts styles accordingly
@@ -37,6 +34,7 @@ document.getElementById("overlay_declutterer").addEventListener("click", async f
 		toggle_declutterer.value = "1"
 		svg.setAttribute("stroke", "green");
 		toggleButton_declutterer.style.boxShadow = "0px 0px 5px 2px lime";
+		
 		const response = await chrome.tabs.sendMessage(tab, {toggle_declutterer: "on"}).catch(() => {});
   	}
     else if(toggle_declutterer.value === "1"){
@@ -46,5 +44,6 @@ document.getElementById("overlay_declutterer").addEventListener("click", async f
 		
 		const response = await chrome.tabs.sendMessage(tab, {toggle_declutterer: "off"}).catch(() => {});
     }
+	
 	chrome.storage.local.set({ "status_declutterer": [toggle_declutterer.value, tab] })
 })
