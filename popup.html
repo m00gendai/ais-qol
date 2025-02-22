@@ -19,8 +19,34 @@
 					</svg>
 				</div>
 			</div>
-			
+			<div class="qol_row">
+				<div class="qol_text">Softphone Colored Queue Status</div>
+				<div id="overlay_softphoneQueues">
+					<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="none">
+						<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+						<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+						<g id="SVGRepo_iconCarrier"> 
+							<path id="offButton_softphoneQueues" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22.5 4.742a13 13 0 11-13 0M16 3v10"></path>
+						</g>
+					</svg>
+				</div>
+			</div>
+<!-- commented out for potential future use
+			<div class="qol_row">
+				<div class="qol_text">Softphone "Pick Up" Symbol Color</div>
+				<div class="overlay_phoneColor">
+					<input type="color" id="phoneColor_pickUp"> 
+				</div>
+			</div>
+			<div class="qol_row">
+				<div class="qol_text">Softphone "Forward" Symbol Color</div>
+				<div class="overlay_phoneColor">
+					<input type="color" id="phoneColor_forward"> 
+				</div>
+			</div>
+--->
 			<input id="toggle_declutterer" type="range" min="0" max="1" step="1"/>
+			<input id="toggle_softphoneQueues" type="range" min="0" max="1" step="1"/>
 		</div>
 
 		<script src="popup.js"></script>
