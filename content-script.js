@@ -78,14 +78,16 @@ function buttonize(header){
 
 // Init function
 (async () => {
+
+
 	
 	// Checks the toggle state and either starts or ends the Mutation Observer
-	const result = await chrome.storage.local.get(["status_declutterer"])
-	
+	const result = await chrome.storage.local.get(["status_declutterer", "status_docker"])
+	console.log(result)
 	if(result.status_declutterer === undefined || result.status_declutterer[0] === "0"){
 		return
 	}
-	
+
 	if(result.status_declutterer[0] === "1"){
 		// If its ON, it also calls the injection function
 		console.log("localstorage ON")
@@ -119,12 +121,35 @@ function buttonize(header){
 			observer.disconnect(); // Stop observing once you've found the element (optional)
 		}
 	}
-})()
+
+	if(result.status_docker[0] === "1"){
+		const observer_docker = new MutationObserver(mutations => {
+			for (const mutation of mutations) {
+				for (const addedNode of mutation.addedNodes) {
+					if(document.querySelector(".utilitybar.slds-utility-bar")){
+						document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-end"
+					}
+					if (addedNode.nodeType === 1 && addedNode.matches(".oneUtilityBar")) {
+						if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open')){
+							document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginLeft = "0rem"
+							document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginRight = "1rem"
+							document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.right = 0
+							return; // Exit to avoid multiple calls.
+						}
+					}  
+				}
+			}
+		});
+
+		observer_docker.observe(document.body, { childList: true, subtree: true }); // Observe changes to the <body> and its descendants
+	
+}})()
 
 // Listens for messages from the toggle state and Percentage Input Field Amends
 chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
 	console.log(request)
-
+const result = await chrome.storage.local.get(["status_declutterer", "status_docker"])
+console.log(result.status_docker)
 	//If the message carries a toggle state and it is ON, call the injection function and start the Mutation Observer
 	if(request.toggle_declutterer === "on"){
 		console.log("action ON")
@@ -141,4 +166,32 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 		if(btn !== null){
 			btn.remove()
 	}}
+
+	if(request.toggle_docker === "on"){
+		console.log("docker ON")
+		console.log(result.status_docker)
+		document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-end"
+		if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open')){
+			console.log("Softphone is open")
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginLeft = "0rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginRight = "1rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.right = 0
+			
+		}
+	} 
+		
+	//If the message carries a toggle state and it is OFF, disconnet the Mutation Observer and remove the additional injected row if it exists
+	if(request.toggle_docker === "off"){
+		console.log("docker OFF")
+		console.log(result.status_docker)
+		document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-start"
+		if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open')){
+			console.log("Softphone is open")
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginLeft = "1rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginRight = "0rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.right = ""
+			
+		}
+	}
+		
 })
