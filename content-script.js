@@ -76,19 +76,32 @@ function buttonize(header){
 
 }
 
+function dockerizeBar(status){ // status "on" | "off"
+	console.log(`docker bar ${status}`)
+	if(document.querySelector(".utilitybar.slds-utility-bar")){
+		document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = status === "on" ? "flex-end" : "flex-start"
+	}
+}
+
+function dockerizeWindow(status){ // status "on" | "off"
+	console.log(`docker window ${status}`)
+	if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel')){
+		document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginLeft = status === "on" ? "0rem" : "1rem"
+		document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginRight = status === "on" ? "1rem" : "0rem"
+		document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.right = status === "on" ? 0 : ""
+	}
+
+}
+
 // Init function
 (async () => {
 
-
-	
 	// Checks the toggle state and either starts or ends the Mutation Observer
 	const result = await chrome.storage.local.get(["status_declutterer", "status_docker"])
 	console.log(result)
-	if(result.status_declutterer === undefined || result.status_declutterer[0] === "0"){
-		return
-	}
 
-	if(result.status_declutterer[0] === "1"){
+
+	if(result.status_declutterer && result.status_declutterer[0] === "1"){
 		// If its ON, it also calls the injection function
 		console.log("localstorage ON")
 
@@ -122,37 +135,41 @@ function buttonize(header){
 		}
 	}
 
-	if(result.status_docker[0] === "1"){
+	if(result.status_docker && result.status_docker[0] === "1"){
+		let dockerBarProcessed = false;
+        let dockerWindowProcessed = false;
 		const observer_docker = new MutationObserver(mutations => {
 			for (const mutation of mutations) {
 				for (const addedNode of mutation.addedNodes) {
-					if(document.querySelector(".utilitybar.slds-utility-bar")){
-						document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-end"
+					if(addedNode.nodeType === 1 && addedNode.matches(".oneUtilityBar.slds-utility-bar_container.oneUtilityBarContent")){
+						dockerizeBar("on")
+						dockerBarProcessed = true;
 					}
-					if (addedNode.nodeType === 1 && addedNode.matches(".oneUtilityBar")) {
-						if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open')){
-							document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginLeft = "0rem"
-							document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginRight = "1rem"
-							document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.right = 0
-							return; // Exit to avoid multiple calls.
-						}
+					if (addedNode.nodeType === 1 && addedNode.matches(".panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel")) {
+						dockerizeWindow("on")
+						dockerWindowProcessed = true;
 					}  
 				}
 			}
-		});
+			console.log(dockerBarProcessed, dockerWindowProcessed)
+			if (dockerBarProcessed && dockerWindowProcessed) {
+                observer_docker.disconnect();
+                console.log("observer_docker disconnected after processing both elements.");
+            }
+		})
 
 		observer_docker.observe(document.body, { childList: true, subtree: true }); // Observe changes to the <body> and its descendants
-	
-}})()
+	}
+})()
+
 
 // Listens for messages from the toggle state and Percentage Input Field Amends
 chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
 	console.log(request)
-const result = await chrome.storage.local.get(["status_declutterer", "status_docker"])
-console.log(result.status_docker)
+
 	//If the message carries a toggle state and it is ON, call the injection function and start the Mutation Observer
 	if(request.toggle_declutterer === "on"){
-		console.log("action ON")
+		console.log("Declutterer ON")
 		const header = document.querySelector("emailui-rich-text-output");
 		if(header){
 			buttonize(header)
@@ -161,37 +178,34 @@ console.log(result.status_docker)
 		
 	//If the message carries a toggle state and it is OFF, disconnet the Mutation Observer and remove the additional injected row if it exists
 	if(request.toggle_declutterer === "off"){
-		console.log("action OFF")
+		console.log("Declutterer OFF")
 		const btn = document.getElementById("extensionPrintButton")
 		if(btn !== null){
 			btn.remove()
 	}}
 
 	if(request.toggle_docker === "on"){
-		console.log("docker ON")
-		console.log(result.status_docker)
-		document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-end"
-		if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open')){
-			console.log("Softphone is open")
-			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginLeft = "0rem"
-			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginRight = "1rem"
-			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.right = 0
-			
+		console.log("Docker ON")
+		if(document.querySelector(".utilitybar.slds-utility-bar")){
+			document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-end"
 		}
-	} 
-		
-	//If the message carries a toggle state and it is OFF, disconnet the Mutation Observer and remove the additional injected row if it exists
+		if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel')){
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginLeft = "0rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginRight = "1rem" 
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.right =  0
+		}
+	}
+	
 	if(request.toggle_docker === "off"){
-		console.log("docker OFF")
-		console.log(result.status_docker)
-		document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-start"
-		if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open')){
-			console.log("Softphone is open")
-			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginLeft = "1rem"
-			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.marginRight = "0rem"
-			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel.DOCKED.slds-is-open').style.right = ""
-			
+		console.log("Docker OFF")
+		if(document.querySelector(".utilitybar.slds-utility-bar")){
+			document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-start"
 		}
+		if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel')){
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginLeft = "1rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginRight ="0rem"
+			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.right = ""
+		}	
 	}
 		
 })

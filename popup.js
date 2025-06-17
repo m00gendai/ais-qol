@@ -66,6 +66,7 @@ document.getElementById("overlay_declutterer").addEventListener("click", async f
 document.getElementById("overlay_docker").addEventListener("click", async function(){
 	console.log("Click Docker")
 	const tab = await getCurrentTab()
+	console.log(toggle_docker.value)
 	if(toggle_docker.value === "0"){
 		toggle_docker.value = "1"
 		svg_docker.setAttribute("stroke", "green");
