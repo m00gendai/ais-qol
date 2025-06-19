@@ -20,19 +20,45 @@ async function getCurrentTab() {
 function setToggleStyle(target, status){ // target: "declutterer" | "docker" | "softphoneQueues", status: "0" | "1"
 	if(status === "0"){
 		document.getElementById(`overlay_${target}_indicator`).classList.remove("active")
-		document.getElementById(`overlay_${target}_indicator`).style.backgroundColor = "red"
+		document.getElementById(`overlay_${target}_indicator`).style.backgroundColor = "rgba(178, 37, 82, 1)"
 		return
 	}
 	if(status === "1"){
 		document.getElementById(`overlay_${target}_indicator`).classList.add("active")
-		document.getElementById(`overlay_${target}_indicator`).style.backgroundColor = "forestgreen"
+		document.getElementById(`overlay_${target}_indicator`).style.backgroundColor = "rgba(70, 145, 155, 1)"
 		return
 	}
 }
 
+function setTabStyle(target){
+	const tabs = document.querySelectorAll(".tab_row_item");
+    const contentElements = document.querySelectorAll(".tab_body_element");
+
+	const targetIndex = target.id.split("_").pop();
+
+    tabs.forEach(tab => {
+        tab.classList.remove("selected");
+    });
+
+    contentElements.forEach(content => {
+        content.classList.remove("visible");
+    });
+
+    target.classList.add("selected");
+
+    const correspondingContentId = `tab_body_${targetIndex}`;
+    const correspondingContent = document.getElementById(correspondingContentId);
+	if (correspondingContent) { 
+        correspondingContent.classList.add("visible");
+    }
+}
+
 // Checks local storage and sets the popup element states accordingly
 (async () => {
-	
+
+	document.getElementById("tab_row_item_aimConnect").classList.add("selected")
+	document.getElementById("tab_body_aimConnect").classList.add("visible")
+
 	// Gets and sets the toggle status
 	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues"])
 
@@ -122,3 +148,9 @@ document.getElementById("overlay_softphoneQueues").addEventListener("click", asy
 	
 	chrome.storage.local.set({ "status_softphoneQueues": [toggle_softphoneQueues.value, tab] })
 })
+
+document.querySelectorAll(".tab_row_item").forEach(function(item) {
+    item.addEventListener("click", function(e) {
+        setTabStyle(e.target);
+    });
+});
