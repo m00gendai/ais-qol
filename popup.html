@@ -9,35 +9,34 @@
 		<div class="container">
 			<div class="qol_row">
 				<div class="qol_text">Salesforce Case Printable View Declutterer</div>
-				<div id="overlay_declutterer">
-					<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="none">
-						<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-						<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-						<g id="SVGRepo_iconCarrier"> 
-							<path id="offButton_declutterer" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22.5 4.742a13 13 0 11-13 0M16 3v10"></path>
-						</g>
-					</svg>
+				<div id="overlay_declutterer" class="overlay">
+					<div id="overlay_declutterer_indicator" class="overlay_indicator"></div>
 				</div>
+				<span class="questionmark" title="Creates an additional button inside an Email Case Text that when pressed leads to a better formatted Case Print View">?</span>
 			</div>
-			
 			<input id="toggle_declutterer" type="range" min="0" max="1" step="1"/>
 		</div>
 		<div class="container">
 			<div class="qol_row">
 				<div class="qol_text">Dock Softphone Window to the Right</div>
-				<div id="overlay_docker">
-					<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="none">
-						<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-						<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-						<g id="SVGRepo_iconCarrier"> 
-							<path id="offButton_docker" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22.5 4.742a13 13 0 11-13 0M16 3v10"></path>
-						</g>
-					</svg>
+				<div id="overlay_docker" class="overlay">
+					<div id="overlay_docker_indicator" class="overlay_indicator"></div>
 				</div>
+				<span class="questionmark" title="Moves the Softphone Control Window to the right side of the screen when toggled on, and to the left (default) when toggled off">?</span>
 			</div>
-			
 			<input id="toggle_docker" type="range" min="0" max="1" step="1"/>
 		</div>
+		<div class="container">
+			<div class="qol_row">
+				<div class="qol_text">Softphone Colored Queue Status</div>
+				<div id="overlay_softphoneQueues" class="overlay">
+					<div id="overlay_softphoneQueues_indicator" class="overlay_indicator"></div>
+				</div>
+				<span class="questionmark" title="Colorizes the Softphone Queue Status in the colors of the Shift Plan - Light Blue for On Queue, Dark Grene for Available and Red for all other statuses">?</span>
+			</div>
+			<input id="toggle_softphoneQueues" type="range" min="0" max="1" step="1"/>
+		<div>
+
 
 		<script src="popup.js"></script>
 	</body>

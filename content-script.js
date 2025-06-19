@@ -1,3 +1,7 @@
+const color_queue_onQueue = "rgb(13, 202, 240)"
+const color_queue_Available = "rgb(25, 135, 84)"
+const color_queue_Other = "rgb(220, 53, 69)"
+
 function buttonize(header){
 	
 	const btn = document.createElement("button")
@@ -93,11 +97,65 @@ function dockerizeWindow(status){ // status "on" | "off"
 
 }
 
+function mutationObserver_SoftphoneQueues(){
+	console.log("Started SoftphoneQueues Observer");
+
+    // Wait until document is fully loaded
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mutationObserver_SoftphoneQueues);
+        return;
+    }
+
+    // Define target node that contains the softphone queue UI (adjust this as needed)
+    const targetNode = document.querySelector("body"); // You may want to narrow this down if possible
+
+    if (!targetNode) {
+        console.warn("SoftphoneQueues Observer: Target node not found.");
+        return;
+    }
+
+    const observer_softphoneQueues = new MutationObserver(mutations => {
+        console.log("SoftphoneQueues Mutations checked");
+
+        const queue = document.querySelector(".itemTitle.slds-utility-bar__text");
+
+        if (queue) {
+            console.log("Detected SoftphoneQueues Observer Queue Text");
+            const header = document.querySelector(".headerLink.panel-header.slds-utility-panel__header.slds-grid.slds-shrink-none");
+
+            if (queue.textContent === "Softphone") {
+                console.log("Detected SoftphoneQueues None");
+                queue.parentNode.style.background = "";
+                if (header) header.style.background = "";
+            } else if (queue.textContent === "On Queue") {
+                console.log("Detected SoftphoneQueues OnQueue");
+                queue.parentNode.style.background = color_queue_onQueue;
+                if (header) header.style.background = color_queue_onQueue;
+            } else if (queue.textContent === "Available") {
+                console.log("Detected SoftphoneQueues Available");
+                queue.parentNode.style.background = color_queue_Available;
+                if (header) header.style.background = color_queue_Available;
+            } else {
+                console.log("Detected SoftphoneQueues Other");
+                queue.parentNode.style.background = color_queue_Other;
+                if (header) header.style.background = color_queue_Other;
+            }
+        }
+    });
+
+    // Start observing
+    observer_softphoneQueues.observe(targetNode, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+}
+
 // Init function
 (async () => {
 
 	// Checks the toggle state and either starts or ends the Mutation Observer
-	const result = await chrome.storage.local.get(["status_declutterer", "status_docker"])
+	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues"])
 	console.log(result)
 
 
@@ -136,6 +194,7 @@ function dockerizeWindow(status){ // status "on" | "off"
 	}
 
 	if(result.status_docker && result.status_docker[0] === "1"){
+		console.log("Localstorage Docker ON")
 		let dockerBarProcessed = false;
         let dockerWindowProcessed = false;
 		const observer_docker = new MutationObserver(mutations => {
@@ -159,6 +218,11 @@ function dockerizeWindow(status){ // status "on" | "off"
 		})
 
 		observer_docker.observe(document.body, { childList: true, subtree: true }); // Observe changes to the <body> and its descendants
+	}
+
+	if(result.status_softphoneQueues && result.status_softphoneQueues[0] === "1"){
+		console.log("Localstorage SoftphoneQueues ON")
+		mutationObserver_SoftphoneQueues()
 	}
 })()
 
@@ -206,6 +270,41 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginRight ="0rem"
 			document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.right = ""
 		}	
+	}
+
+	if(request.toggle_softphoneQueues === "on"){
+		const queue = document.querySelector(".itemTitle.slds-utility-bar__text");
+		if (queue){
+			const header  = document.querySelector(".headerLink.panel-header.slds-utility-panel__header.slds-grid.slds-shrink-none")
+			if(queue.textContent === "Softphone") {
+				queue.parentNode.style.background = "";
+				header.style.background = ""
+				mutationObserver_SoftphoneQueues()
+			} 
+			if(queue.textContent === "On Queue") {
+				queue.parentNode.style.background = color_queue_onQueue
+				header.style.background = color_queue_onQueue
+				mutationObserver_SoftphoneQueues()
+			} 
+			else if (queue.textContent === "Available") {
+				queue.parentNode.style.background = color_queue_Available
+				header.style.background = color_queue_Available
+				mutationObserver_SoftphoneQueues()
+			} else {
+				queue.parentNode.style.background = color_queue_Other
+				header.style.background = color_queue_Other
+				mutationObserver_SoftphoneQueues()
+			}
+		}
+	}
+
+	if(request.toggle_softphoneQueues === "off"){
+		const queue = document.querySelector(".itemTitle.slds-utility-bar__text");
+		if (queue){
+			const header  = document.querySelector(".headerLink.panel-header.slds-utility-panel__header.slds-grid.slds-shrink-none")
+			queue.parentNode.style.background = "";
+			header.style.background = ""
+		}
 	}
 		
 })
