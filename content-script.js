@@ -1,6 +1,11 @@
+console.log("[Content Script] Loaded on:", window.location.href);
+
 const color_queue_onQueue = "rgb(13, 202, 240)"
 const color_queue_Available = "rgb(25, 135, 84)"
 const color_queue_Other = "rgb(220, 53, 69)"
+
+const color_skyblue_100 = "rgba(40, 80, 160, 1)"
+const color_skylight_100 = "rgba(160, 190, 230, 1)"
 
 function buttonize(header){
 	
@@ -151,13 +156,83 @@ function mutationObserver_SoftphoneQueues(){
     });
 }
 
+function mutationObserver_YonderColors(){
+	console.log("Started YonderColor Observer");
+
+    // Wait until document is fully loaded
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mutationObserver_YonderColors);
+        return;
+    }
+
+    // Define target node that contains the softphone queue UI (adjust this as needed)
+    const targetNode = document.querySelector(".dashboard-card"); // You may want to narrow this down if possible
+
+    if (!targetNode) {
+        console.warn("SoftphoneQueues Observer: Target node not found.");
+        return;
+    }
+
+    const observer_yonderColors = new MutationObserver(mutations => {
+        console.log("YonderColors Mutations checked");
+
+        const folder = document.querySelectorAll(".yonder-list-item");
+
+        if (folder) {
+            console.log("Detected YonderColors Observer Folder item");
+            const yonderFolders = document.querySelectorAll(".yonder-list-item")
+			yonderFolders.forEach(folder =>{
+
+				if(folder.getAttribute("variant") === "folder"){
+					if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
+						folder.style.backgroundColor = color_skyblue_100
+						folder.children[1].children[0].style.color = "white" //TEXT
+						folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
+						if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
+							folder.style.marginLeft = "1rem"
+							folder.children[1].children[0].style.color = "" //TEXT
+							folder.style.backgroundColor = color_skylight_100
+							folder.children[0].children[0].children[0].setAttribute("fill", "rgba(0,0,0,0.54") //ICON FOLDER
+							
+						}
+						if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
+							folder.style.backgroundColor = color_skyblue_100
+							folder.children[2].children[0].children[0].setAttribute("fill", "white") //ICON BACK TO ROOT
+							folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
+							folder.style.marginLeft = ""
+							folder.children[1].children[0].style.color = "white" //TEXT
+							
+						} 
+						
+					} else {
+						folder.style.backgroundColor = color_skylight_100
+					}
+				} else {
+					folder.style.marginLeft = "1rem"
+				}
+			})
+        }
+    });
+
+    // Start observing
+    observer_yonderColors.observe(targetNode, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+}
+
 // Init function
 (async () => {
 
 	// Checks the toggle state and either starts or ends the Mutation Observer
-	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues"])
+	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues", "status_yonderColors"])
 	console.log(result)
 
+	window.addEventListener('hashchange', () => {
+  console.log('Hash changed!', window.location.hash);
+  mutationObserver_YonderColors()
+});
 
 	if(result.status_declutterer && result.status_declutterer[0] === "1"){
 		// If its ON, it also calls the injection function
@@ -224,6 +299,12 @@ function mutationObserver_SoftphoneQueues(){
 		console.log("Localstorage SoftphoneQueues ON")
 		mutationObserver_SoftphoneQueues()
 	}
+
+	if(result.status_yonderColors && result.status_yonderColors[0] === "1"){
+		console.log("initiate yondercolorer")
+		mutationObserver_YonderColors()
+	}
+
 })()
 
 
@@ -305,6 +386,24 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 			queue.parentNode.style.background = "";
 			header.style.background = ""
 		}
+	}
+
+	if(request.toggle_yonderColors === "on"){
+		const yonderFolders = document.querySelectorAll(".yonder-list-item")
+		yonderFolders.forEach(folder =>{
+			if(folder.getAttribute("variant") === "folder"){
+				folder.style.backgroundColor = "red"
+			}
+		})
+	}
+
+	if(request.toggle_yonderColors === "off"){
+		const yonderFolders = document.querySelectorAll(".yonder-list-item")
+		yonderFolders.forEach(folder =>{
+			if(folder.getAttribute("variant") === "folder"){
+				folder.style.backgroundColor = ""
+			}
+		})
 	}
 		
 })

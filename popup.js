@@ -1,14 +1,17 @@
 const toggle_declutterer = document.getElementById("toggle_declutterer");
 const toggle_docker = document.getElementById("toggle_docker");
 const toggle_softphoneQueues = document.getElementById("toggle_softphoneQueues");
+const toggle_yonderColors = document.getElementById("toggle_yonderColors")
 
 const toggleButton_declutterer = document.getElementById("overlay_declutterer");
 const toggleButton_docker = document.getElementById("overlay_docker");
 const toggleButton_softphoneQueues = document.getElementById("overlay_softphoneQueues");
+const toggleButton_yonderColors = document.getElementById("overlay_yonderColors");
 
-const indicator_declutterer = document.getElementById("overlay_declutterer_indicator");
+const indicator_declutterer = document.getElementById("overlay_declutterer_indicatorc:\Users\weberml\OneDrive - Skyguide\Documents\Stuff\Private\JS Tests\Extensions\AIS QoL\popup.html");
 const indicator_docker = document.getElementById("overlay_docker_indicator");
 const indicator_softphoneQueues = document.getElementById("overlay_softphoneQueues_indicator")
+const indicator_yonderColors = document.getElementById("overlay_yonderColors_indicator")
 
 // Returns current tab id
 async function getCurrentTab() {
@@ -147,6 +150,27 @@ document.getElementById("overlay_softphoneQueues").addEventListener("click", asy
     }
 	
 	chrome.storage.local.set({ "status_softphoneQueues": [toggle_softphoneQueues.value, tab] })
+})
+
+document.getElementById("overlay_yonderColors").addEventListener("click", async function(){
+console.log("YONDERCLIK")
+	const tab = await getCurrentTab()
+	console.log(tab)
+	if(toggle_yonderColors.value === "0"){
+		console.log("YONDERON")
+		toggle_yonderColors.value = "1"
+		setToggleStyle("yonderColors", "1")
+		
+		const response = await chrome.tabs.sendMessage(tab, {toggle_yonderColors: "on"}).catch((e) => {console.log(e)});
+  	} else if(toggle_yonderColors.value === "1"){
+		console.log("YONDEROFF")
+		toggle_yonderColors.value = "0"
+		setToggleStyle("yonderColors", "0")
+		
+		const response = await chrome.tabs.sendMessage(tab, {toggle_yonderColors: "off"}).catch((e) => {console.log(e)});
+    }
+	
+	chrome.storage.local.set({ "status_yonderColors": [toggle_yonderColors.value, tab] })
 })
 
 document.querySelectorAll(".tab_row_item").forEach(function(item) {

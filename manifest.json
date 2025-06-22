@@ -13,7 +13,8 @@
 		{
 		  "js": ["content-script.js"],
 		  "matches": [
-			"https://aimconnect.lightning.force.com/lightning*"
+			"https://aimconnect.lightning.force.com/lightning*",
+			"https://skyguide.yonder.info/*"
 		  ]
 		}
 	],
@@ -21,6 +22,7 @@
 		"storage", "activeTab"
 	],
 	"host_permissions": [
-		"https://aimconnect.lightning.force.com/lightning*"
+		"https://aimconnect.lightning.force.com/lightning*",
+		"https://skyguide.yonder.info/*"
 	]	
 }
