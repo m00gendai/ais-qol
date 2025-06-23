@@ -2,6 +2,14 @@ const color_queue_onQueue = "rgb(13, 202, 240)"
 const color_queue_Available = "rgb(25, 135, 84)"
 const color_queue_Other = "rgb(220, 53, 69)"
 
+const color_skyblue_100 = "rgba(40, 80, 160, 1)"
+const color_skylight_100 = "rgba(160, 190, 230, 1)"
+const color_skydarkblue_100 = "rgba(30, 40, 60, 1)"
+const color_sunset_100 = "rgba(220, 200, 125, 1)"
+const color_aurora_100 = "rgba(70, 145, 155, 1)"
+const color_redksy_100 = "rgba(178, 37, 82, 1)"
+
+
 function buttonize(header){
 	
 	const btn = document.createElement("button")
@@ -81,14 +89,12 @@ function buttonize(header){
 }
 
 function dockerizeBar(status){ // status "on" | "off"
-	console.log(`docker bar ${status}`)
 	if(document.querySelector(".utilitybar.slds-utility-bar")){
 		document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = status === "on" ? "flex-end" : "flex-start"
 	}
 }
 
 function dockerizeWindow(status){ // status "on" | "off"
-	console.log(`docker window ${status}`)
 	if(document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel')){
 		document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginLeft = status === "on" ? "0rem" : "1rem"
 		document.querySelector('.panel.scrollable.slds-utility-panel.slds-grid.slds-grid_vertical.oneUtilityBarPanel').style.marginRight = status === "on" ? "1rem" : "0rem"
@@ -98,8 +104,6 @@ function dockerizeWindow(status){ // status "on" | "off"
 }
 
 function mutationObserver_SoftphoneQueues(){
-	console.log("Started SoftphoneQueues Observer");
-
     // Wait until document is fully loaded
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", mutationObserver_SoftphoneQueues);
@@ -109,20 +113,10 @@ function mutationObserver_SoftphoneQueues(){
     // Define target node that contains the softphone queue UI (adjust this as needed)
     const targetNode = document.querySelector("body"); // You may want to narrow this down if possible
 
-    if (!targetNode) {
-        console.warn("SoftphoneQueues Observer: Target node not found.");
-        return;
-    }
-
     const observer_softphoneQueues = new MutationObserver(mutations => {
-        console.log("SoftphoneQueues Mutations checked");
-
         const queue = document.querySelector(".itemTitle.slds-utility-bar__text");
-
         if (queue) {
-            console.log("Detected SoftphoneQueues Observer Queue Text");
             const header = document.querySelector(".headerLink.panel-header.slds-utility-panel__header.slds-grid.slds-shrink-none");
-
             if (queue.textContent === "Softphone") {
                 console.log("Detected SoftphoneQueues None");
                 queue.parentNode.style.background = "";
@@ -151,18 +145,117 @@ function mutationObserver_SoftphoneQueues(){
     });
 }
 
+function colorYonderFolders(status){
+	const folder = document.querySelectorAll(".yonder-list-item");
+	if (folder) {
+		const yonderFolders = document.querySelectorAll(".yonder-list-item")
+		yonderFolders.forEach(folder =>{
+			if(status === "on"){
+				if(folder.getAttribute("variant") === "folder"){
+					if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
+						folder.style.backgroundColor = color_skyblue_100
+						folder.children[1].children[0].style.color = "white" //TEXT
+						folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
+						if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
+							folder.style.marginLeft = "1rem"
+							folder.children[1].children[0].style.color = "" //TEXT
+							folder.style.backgroundColor = color_skylight_100
+							folder.children[0].children[0].children[0].setAttribute("fill", "rgba(0,0,0,0.54") //ICON FOLDER
+							
+						}
+						if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
+							folder.style.backgroundColor = color_skyblue_100
+							folder.children[2].children[0].children[0].setAttribute("fill", "white") //ICON BACK TO ROOT
+							folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
+							folder.style.marginLeft = ""
+							folder.children[1].children[0].style.color = "white" //TEXT
+							
+						} 
+						
+					} else {
+						folder.style.backgroundColor = color_skylight_100
+					}
+				} else {
+					if(folder.getAttribute("variant") === "folder"){
+						folder.style.marginLeft = "1rem"
+					}
+				}
+			} else {
+				if(folder.getAttribute("variant") === "folder"){
+					if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
+						folder.style.backgroundColor = ""
+						folder.children[1].children[0].style.color = "" //TEXT
+						folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
+						if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
+							folder.style.marginLeft = ""
+							folder.children[1].children[0].style.color = "" //TEXT
+							folder.style.backgroundColor = ""
+							folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
+							
+						}
+						if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
+							folder.style.backgroundColor = ""
+							folder.children[2].children[0].children[0].setAttribute("fill", "") //ICON BACK TO ROOT
+							folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
+							folder.style.marginLeft = ""
+							folder.children[1].children[0].style.color = "" //TEXT
+							
+						} 
+					} else {
+						folder.style.backgroundColor = ""
+					}
+				} else {
+					if(folder.getAttribute("variant") === "folder"){
+						folder.style.marginLeft = ""
+					}
+				}
+			}
+		})
+	}
+}
+
+let observer_yonderColors = null
+function mutationObserver_YonderColors(status){
+    // Wait until document is fully loaded
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mutationObserver_YonderColors);
+        return;
+    }
+
+    // Define target node that contains the softphone queue UI (adjust this as needed)
+    const targetNode = document.querySelector(".dashboard-card"); // You may want to narrow this down if possible
+
+	if(status === "on"){
+		colorYonderFolders("on")
+    	observer_yonderColors = new MutationObserver(mutations => {
+        	console.log("YonderColors Mutations checked");
+        	colorYonderFolders("on")
+    	});
+		if(targetNode){
+			observer_yonderColors.observe(targetNode, {
+				childList: true,
+				subtree: true,
+				characterData: true
+			});
+		}
+	} else {
+		observer_yonderColors.disconnect()
+		colorYonderFolders("off")
+	}
+}
+
 // Init function
 (async () => {
-
 	// Checks the toggle state and either starts or ends the Mutation Observer
-	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues"])
-	console.log(result)
+	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues", "status_yonderColors"])
 
+	window.addEventListener('hashchange', () => {
+  		console.log('Hash changed!', window.location.hash);
+  		mutationObserver_YonderColors(result.status_yonderColors === "1" ? "on" : "off")
+});
 
 	if(result.status_declutterer && result.status_declutterer[0] === "1"){
 		// If its ON, it also calls the injection function
-		console.log("localstorage ON")
-
 		const observer = new MutationObserver(mutations => {
 			for (const mutation of mutations) {
 				for (const addedNode of mutation.addedNodes) {
@@ -184,7 +277,6 @@ function mutationObserver_SoftphoneQueues(){
 		});
 
 		observer.observe(document.body, { childList: true, subtree: true }); // Observe changes to the <body> and its descendants
-
 		//If the element is already there, you can still buttonize it.
 		const header = document.querySelector("emailui-rich-text-output");
 		if (header) {
@@ -194,7 +286,6 @@ function mutationObserver_SoftphoneQueues(){
 	}
 
 	if(result.status_docker && result.status_docker[0] === "1"){
-		console.log("Localstorage Docker ON")
 		let dockerBarProcessed = false;
         let dockerWindowProcessed = false;
 		const observer_docker = new MutationObserver(mutations => {
@@ -210,7 +301,6 @@ function mutationObserver_SoftphoneQueues(){
 					}  
 				}
 			}
-			console.log(dockerBarProcessed, dockerWindowProcessed)
 			if (dockerBarProcessed && dockerWindowProcessed) {
                 observer_docker.disconnect();
                 console.log("observer_docker disconnected after processing both elements.");
@@ -221,35 +311,33 @@ function mutationObserver_SoftphoneQueues(){
 	}
 
 	if(result.status_softphoneQueues && result.status_softphoneQueues[0] === "1"){
-		console.log("Localstorage SoftphoneQueues ON")
 		mutationObserver_SoftphoneQueues()
 	}
+
+	if(result.status_yonderColors && result.status_yonderColors[0] === "1"){
+		mutationObserver_YonderColors("on")
+	}
+
 })()
 
 
 // Listens for messages from the toggle state and Percentage Input Field Amends
 chrome.runtime.onMessage.addListener(async function(request, sender, sendResponse) {
-	console.log(request)
-
 	//If the message carries a toggle state and it is ON, call the injection function and start the Mutation Observer
 	if(request.toggle_declutterer === "on"){
-		console.log("Declutterer ON")
 		const header = document.querySelector("emailui-rich-text-output");
 		if(header){
 			buttonize(header)
 		}
 	} 
-		
 	//If the message carries a toggle state and it is OFF, disconnet the Mutation Observer and remove the additional injected row if it exists
 	if(request.toggle_declutterer === "off"){
-		console.log("Declutterer OFF")
 		const btn = document.getElementById("extensionPrintButton")
 		if(btn !== null){
 			btn.remove()
 	}}
 
 	if(request.toggle_docker === "on"){
-		console.log("Docker ON")
 		if(document.querySelector(".utilitybar.slds-utility-bar")){
 			document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-end"
 		}
@@ -261,7 +349,6 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 	}
 	
 	if(request.toggle_docker === "off"){
-		console.log("Docker OFF")
 		if(document.querySelector(".utilitybar.slds-utility-bar")){
 			document.querySelector(".utilitybar.slds-utility-bar").style.justifyContent = "flex-start"
 		}
@@ -305,6 +392,14 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 			queue.parentNode.style.background = "";
 			header.style.background = ""
 		}
+	}
+
+	if(request.toggle_yonderColors === "on"){
+		mutationObserver_YonderColors("on")
+	}
+
+	if(request.toggle_yonderColors === "off"){
+		mutationObserver_YonderColors("off")
 	}
 		
 })

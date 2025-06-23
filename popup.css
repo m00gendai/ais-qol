@@ -96,7 +96,8 @@ body{
 
 #toggle_declutterer,
 #toggle_docker,
-#toggle_softphoneQueues{
+#toggle_softphoneQueues,
+#toggle_yonderColors{
 	display: none;
 }
 
