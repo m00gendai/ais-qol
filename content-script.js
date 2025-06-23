@@ -51,19 +51,18 @@ function buttonize(header){
 		
 		html += `<h1 style="color: red;">Case ${caseNumber}</h1>`
 		
-		const addnData = section.querySelector("records-record-layout-block")
-		const addnDataLabels = addnData.querySelectorAll("dt")
-		const addnDataContent = addnData.querySelectorAll("dd")
-
+		const addnData = section.querySelectorAll("records-record-layout-item")
+		const addnDataLabels = [...addnData].map(data => {return data.querySelectorAll(".test-id__field-label")})
+		const addnDataContent = [...addnData].map(data => {return data.querySelectorAll(".test-id__field-value")})
 		html += `<div style="width: 100%; display: flex; flex-wrap: wrap; font-size: 11px; padding: 0 0 5px 0; border-bottom: 1px solid black; margin: 0 0 1rem 0;">`;
 
 		for (let i = 0; i < addnDataLabels.length; i++) {
 			html += `<div style="width: 50%; display: flex; padding: 0 0 0.25rem 0;">
 						<div style="font-weight: bold; width: 50%;">
-							${addnDataLabels[i].textContent}:
+							${addnDataLabels[i][0] && addnDataLabels[i][0].length !== 0 ? `${addnDataLabels[i][0].innerHTML}:` : ""}
 						</div>
 						<div style="width: 50%;">
-							${addnDataContent[i].textContent.split(`Edit ${addnDataLabels[i].textContent}`)[0]}
+							${addnDataContent[i][0] && addnDataContent[i][0].length !== 0 ? addnDataContent[i][0].innerHTML : ""}
 						</div>
 					</div>`;
 		}
