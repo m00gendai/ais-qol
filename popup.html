@@ -23,7 +23,7 @@
 							<div id="overlay_declutterer" class="overlay">
 								<div id="overlay_declutterer_indicator" class="overlay_indicator"></div>
 							</div>
-							<span class="questionmark" title="Creates an additional button inside an Email Case Text that when pressed leads to a better formatted Case Print View">?</span>
+							<span class="questionmark" id="help_declutterer" title="Click for help text">?</span>
 						</div>
 						<input id="toggle_declutterer" type="range" min="0" max="1" step="1"/>
 					</div>
@@ -33,7 +33,7 @@
 							<div id="overlay_docker" class="overlay">
 								<div id="overlay_docker_indicator" class="overlay_indicator"></div>
 							</div>
-							<span class="questionmark" title="Moves the Softphone Control Window to the right side of the screen when toggled on, and to the left (default) when toggled off">?</span>
+							<span class="questionmark" id="help_docker" title="Click for help text">?</span>
 						</div>
 						<input id="toggle_docker" type="range" min="0" max="1" step="1"/>
 					</div>
@@ -43,9 +43,19 @@
 							<div id="overlay_softphoneQueues" class="overlay">
 								<div id="overlay_softphoneQueues_indicator" class="overlay_indicator"></div>
 							</div>
-							<span class="questionmark" title="Colorizes the Softphone Queue Status in the colors of the Shift Plan - Light Blue for On Queue, Dark Grene for Available and Red for all other statuses">?</span>
+							<span class="questionmark" id="help_softphoneQueues" title="Click for help text">?</span>
 						</div>
 						<input id="toggle_softphoneQueues" type="range" min="0" max="1" step="1"/>
+					</div>
+					<div class="container">
+						<div class="qol_row">
+							<div class="qol_text">Experimental: Case Helpdesk Colors</div>
+							<div id="overlay_caseCategories" class="overlay">
+								<div id="overlay_caseCategories_indicator" class="overlay_indicator"></div>
+							</div>
+							<span class="questionmark" id="help_caseCategories" title="Click for help text">?</span>
+						</div>
+						<input id="toggle_caseCategories" type="range" min="0" max="1" step="1"/>
 					</div>
 				</div>
 				<div class="tab_body_element" id="tab_body_yonder">
@@ -55,11 +65,17 @@
 							<div id="overlay_yonderColors" class="overlay">
 								<div id="overlay_yonderColors_indicator" class="overlay_indicator"></div>
 							</div>
-							<span class="questionmark" title="Adds some colors to the folder structure in the Library section in Yonder so its a bit less confusing">?</span>
+							<span class="questionmark" id="help_yonderColors" title="Click for help text">?</span>
 						</div>
 						<input id="toggle_yonderColors" type="range" min="0" max="1" step="1"/>
 					</div>
 				</div>
+			</div>
+		</div>
+		<div class="imprint">&copy; Marcel Weber for Skyguide AIM Services <a href="https://github.com/m00gendai/ais-qol" target="_blank">Source code and help page</a></div>
+		<div class="helpText">
+			<div class="helpText_inner">
+				<p id="helpText_inner_text"></p>
 			</div>
 		</div>
 		<script src="popup.js"></script>

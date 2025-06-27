@@ -59,18 +59,19 @@ function buttonize(header){
 		
 		html += `<h1 style="color: red;">Case ${caseNumber}</h1>`
 		
-		const addnData = section.querySelectorAll("records-record-layout-item")
-		const addnDataLabels = [...addnData].map(data => {return data.querySelectorAll(".test-id__field-label")})
-		const addnDataContent = [...addnData].map(data => {return data.querySelectorAll(".test-id__field-value")})
+		const addnData = section.querySelector("records-record-layout-block")
+		const addnDataLabels = addnData.querySelectorAll("dt")
+		const addnDataContent = addnData.querySelectorAll("dd")
+
 		html += `<div style="width: 100%; display: flex; flex-wrap: wrap; font-size: 11px; padding: 0 0 5px 0; border-bottom: 1px solid black; margin: 0 0 1rem 0;">`;
 
 		for (let i = 0; i < addnDataLabels.length; i++) {
 			html += `<div style="width: 50%; display: flex; padding: 0 0 0.25rem 0;">
 						<div style="font-weight: bold; width: 50%;">
-							${addnDataLabels[i][0] && addnDataLabels[i][0].length !== 0 ? `${addnDataLabels[i][0].innerHTML}:` : ""}
+							${addnDataLabels[i].textContent}:
 						</div>
 						<div style="width: 50%;">
-							${addnDataContent[i][0] && addnDataContent[i][0].length !== 0 ? addnDataContent[i][0].innerHTML : ""}
+							${addnDataContent[i].textContent.split(`Edit ${addnDataLabels[i].textContent}`)[0]}
 						</div>
 					</div>`;
 		}
@@ -164,6 +165,9 @@ function getNotificationColor(type){
 }
 
 function colorYonderNotifications(status, target){
+	if(!target){
+		return
+	}
 	if(status === "on"){
 		const notificationExplanation = document.createElement("div")
 		notificationExplanation.style.position = "absolute"
@@ -236,6 +240,9 @@ function colorYonderNotifications(status, target){
 }
 
 function colorYonderFolders(status, target){
+	if(!target){
+		return
+	}
 	const folder = target.querySelectorAll(".yonder-list-item");
 	if (folder) {
 		const yonderFolders = target.querySelectorAll(".yonder-list-item")
@@ -308,7 +315,7 @@ function mutationObserver_YonderColors(status){
     const targetNode = document.querySelectorAll(".dashboard-card"); // You may want to narrow this down if possible
 
 	if(status === "on"){
-		if(targetNode){
+		if(targetNode && targetNode[0] && targetNode[2]){
 			colorYonderFolders("on", targetNode[0])
 			colorYonderNotifications("on", targetNode[2])
 
@@ -321,7 +328,7 @@ function mutationObserver_YonderColors(status){
 		}
 
 
-		if(targetNode){
+		if(targetNode && targetNode[0] && targetNode[2]){
 			observer_yonderColors_folders.observe(targetNode[0], {
 				childList: true,
 				subtree: true,
@@ -342,15 +349,116 @@ function mutationObserver_YonderColors(status){
 	}
 }
 
+function searchDetails() {
+	return new Promise((resolve) => {
+		const poll = setInterval(() => {
+			const details = document.querySelectorAll(".slds-button.slds-button_icon.slds-button_icon-border-filled.slds-button_first");
+
+			if (details.length > 0) {
+				clearInterval(poll);
+				console.log("Button found:", details);
+				resolve(details);
+			}
+		}, 100);
+	});
+}
+
+function searchCards(){
+	return new Promise((resolve) => {
+		const poll = setInterval(() => {
+			const details = document.querySelectorAll(".runtime_sales_pipelineboardPipelineViewCardStencil.forceRecordLayout");
+
+			if (details.length > 0) {
+				clearInterval(poll);
+				console.log("Card found:", details);
+				resolve(details);
+			}
+		}, 100);
+	});
+}
+
+function searchInfo(){
+	return new Promise((resolve) => {
+		const poll = setInterval(() => {
+			const details = document.querySelectorAll(".forceListViewManagerSecondaryDisplayManager");
+
+			if (details.length > 0) {
+				clearInterval(poll);
+				console.log("Display found:", details);
+				resolve(details);
+			}
+		}, 100);
+	});
+}
+
+function clickCard(card){
+	card.click()
+}
+
+function waitForRecordHeaderText(timeout = 10000) {
+	return new Promise((resolve, reject) => {
+		const startTime = Date.now();
+		const poll = setInterval(() => {
+			const textContainer = document.querySelector(".recordHeader");
+			if (textContainer && textContainer.textContent.trim().length > 0) {
+				clearInterval(poll);
+				resolve(textContainer);
+			}
+			if (Date.now() - startTime > timeout) {
+				clearInterval(poll);
+				reject("Timeout waiting for recordHeader");
+			}
+		}, 100);
+	});
+}
+
+async function categorizeCases(){
+	const details = await searchDetails()
+		//details[0].click()
+		const cards = await searchCards()
+		for (const [index, card] of cards.entries()) {
+			clickCard(card);
+
+			await searchInfo(); // wait for detail panel to appear
+
+			try {
+				const textContainer = await waitForRecordHeaderText();
+				const targetText = textContainer.children[1]?.children[2]?.children[1]?.textContent?.trim();
+
+				console.log(`Card #${index + 1}:`, targetText);
+
+				if (targetText === "NOTAM Office") {
+					card.style.borderLeft = "5px solid yellow";
+				}
+				if (targetText === "KOSIF") {
+					card.style.borderLeft = "5px solid green";
+				}
+				if (targetText === "Skybriefing & ARO") {
+					card.style.borderLeft = "5px solid blue";
+				}
+				if (targetText === "AIS") {
+					card.style.borderLeft = "5px solid grey";
+				}
+			} catch (err) {
+				console.warn(`Card #${index + 1}:`, err);
+			}
+		}
+}
+
 // Init function
 (async () => {
 	// Checks the toggle state and either starts or ends the Mutation Observer
-	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues", "status_yonderColors"])
-
+	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues", "status_yonderColors", "status_caseCategories"])
+console.log(result)
 	window.addEventListener('hashchange', () => {
-  		console.log('Hash changed!', window.location.hash);
   		mutationObserver_YonderColors(result.status_yonderColors[0] === "1" ? "on" : "off")
-});
+	});
+
+	navigation.addEventListener("navigate", async () =>{
+		console.log("NAVIGATE")
+		categorizeCases()
+	})
+
 
 	if(result.status_declutterer && result.status_declutterer[0] === "1"){
 		// If its ON, it also calls the injection function
@@ -363,13 +471,13 @@ function mutationObserver_YonderColors(status){
 					}  else if (addedNode.nodeType === 1 && addedNode.matches(".emailMessageBody.uiOutputText.forceChatterFeedAuxBodyText")) {
 						buttonize(addedNode);
 						return; // Exit to avoid multiple calls.
-					}else if (addedNode.nodeType === 1) {
+					} else if (addedNode.nodeType === 1) {
 						const header = addedNode.querySelector("emailui-rich-text-output") ? addedNode.querySelector("emailui-rich-text-output") :  addedNode.querySelector(".emailMessageBody.uiOutputText.forceChatterFeedAuxBodyText");
 						if (header) {
 							buttonize(header);
 							return; // Exit to avoid multiple calls.
 						}
-					}
+					} 
 				}
 			}
 		});
@@ -377,12 +485,14 @@ function mutationObserver_YonderColors(status){
 		observer.observe(document.body, { childList: true, subtree: true }); // Observe changes to the <body> and its descendants
 		//If the element is already there, you can still buttonize it.
 		const header = document.querySelector("emailui-rich-text-output");
+
 		if (header) {
 			buttonize(header);
 			observer.disconnect(); // Stop observing once you've found the element (optional)
 		}
-	}
 
+	}
+	
 	if(result.status_docker && result.status_docker[0] === "1"){
 		let dockerBarProcessed = false;
         let dockerWindowProcessed = false;
@@ -414,6 +524,17 @@ function mutationObserver_YonderColors(status){
 
 	if(result.status_yonderColors && result.status_yonderColors[0] === "1"){
 		mutationObserver_YonderColors("on")
+	}
+
+	if(result.status_caseCategories && result.status_caseCategories[0] === "1"){
+		categorizeCases()
+	}
+
+	if(result.status_caseCategories && result.status_caseCategories[0] === "0"){
+		const cards = await searchCards()
+		for (const [index, card] of cards.entries()) {
+			card.style.borderLeft = ""
+		}
 	}
 
 })()
@@ -498,6 +619,16 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 
 	if(request.toggle_yonderColors === "off"){
 		mutationObserver_YonderColors("off")
+	}
+
+	if(request.toggle_caseCategories === "on"){
+		categorizeCases()
+	}
+	if(request.toggle_caseCategories === "off"){
+		const cards = await searchCards()
+		for (const [index, card] of cards.entries()) {
+			card.style.borderLeft = ""
+		}
 	}
 		
 })
