@@ -9,6 +9,50 @@ const color_sunset_100 = "rgba(220, 200, 125, 1)"
 const color_aurora_100 = "rgba(70, 145, 155, 1)"
 const color_redksy_100 = "rgba(178, 37, 82, 1)"
 
+const color_DAT = "#1fe247"
+const color_PUB = "#ff8f00"
+const color_ARO = "#3949ab"
+const color_SFO = "#80cafc"
+const color_B = "#e1f5fe"
+
+const offices = [
+	{
+		office: "NOTAM Office", 
+		color: color_PUB,
+		font: "black",
+	},
+	{
+		office: "KOSIF", 
+		color: color_PUB,
+		font: "black",
+	},
+	{
+		office: "Skybriefing & ARO",
+		color: color_ARO,
+		font: "white",
+	 },
+	 {
+		office: "AIS",
+		color: color_B,
+		font: "black",
+	 },
+	 {
+		office: "Special Flight Support", 
+		color: color_SFO,
+		font: "black",
+	 },
+	 {
+		office: "Data Collection",
+		color: color_DAT,
+		font: "black",
+	},
+	{
+		office: "AIM NOTAM",
+		color: color_DAT,
+		font: "black",
+	},
+]
+
 
 function buttonize(header){
 	
@@ -118,19 +162,15 @@ function mutationObserver_SoftphoneQueues(){
         if (queue) {
             const header = document.querySelector(".headerLink.panel-header.slds-utility-panel__header.slds-grid.slds-shrink-none");
             if (queue.textContent === "Softphone") {
-                console.log("Detected SoftphoneQueues None");
                 queue.parentNode.style.background = "";
                 if (header) header.style.background = "";
             } else if (queue.textContent === "On Queue") {
-                console.log("Detected SoftphoneQueues OnQueue");
                 queue.parentNode.style.background = color_queue_onQueue;
                 if (header) header.style.background = color_queue_onQueue;
             } else if (queue.textContent === "Available") {
-                console.log("Detected SoftphoneQueues Available");
                 queue.parentNode.style.background = color_queue_Available;
                 if (header) header.style.background = color_queue_Available;
             } else {
-                console.log("Detected SoftphoneQueues Other");
                 queue.parentNode.style.background = color_queue_Other;
                 if (header) header.style.background = color_queue_Other;
             }
@@ -356,7 +396,6 @@ function searchDetails() {
 
 			if (details.length > 0) {
 				clearInterval(poll);
-				console.log("Button found:", details);
 				resolve(details);
 			}
 		}, 100);
@@ -370,7 +409,6 @@ function searchCards(){
 
 			if (details.length > 0) {
 				clearInterval(poll);
-				console.log("Card found:", details);
 				resolve(details);
 			}
 		}, 100);
@@ -384,7 +422,32 @@ function searchInfo(){
 
 			if (details.length > 0) {
 				clearInterval(poll);
-				console.log("Display found:", details);
+				resolve(details);
+			}
+		}, 100);
+	});
+}
+
+function searchRow(){
+	return new Promise((resolve) => {
+		const poll = setInterval(() => {
+			const details = document.querySelector(".slds-grid.slds-media__body")
+
+			if (details) {
+				clearInterval(poll);
+				resolve(details);
+			}
+		}, 100);
+	});
+}
+
+function searchKanban(){
+	return new Promise((resolve) => {
+		const poll = setInterval(() => {
+			const details = document.querySelectorAll(".pipelineColumn.runtime_sales_pipelineboardPipelineViewColumn")
+
+			if (details.length > 0) {
+				clearInterval(poll);
 				resolve(details);
 			}
 		}, 100);
@@ -395,7 +458,7 @@ function clickCard(card){
 	card.click()
 }
 
-function waitForRecordHeaderText(timeout = 10000) {
+function waitForRecordHeaderText(timeout = 20000) {
 	return new Promise((resolve, reject) => {
 		const startTime = Date.now();
 		const poll = setInterval(() => {
@@ -416,6 +479,33 @@ async function categorizeCases(){
 	const details = await searchDetails()
 		//details[0].click()
 		const cards = await searchCards()
+		const explain = document.createElement("div")
+		explain.className = "caseCategoryHelp"
+		explain.style.display = "flex"
+		explain.style.alignItems = "center"
+		explain.style.justifyContent = "flex-start"
+		const row = await searchRow() 
+		if(!row.querySelector(".caseCategoryHelp")){
+			
+			for(const office of offices){
+				const div = document.createElement("div")
+				const getStyle = window.getComputedStyle(row)
+				div.style.height = getStyle.height
+				div.style.padding = "0.5rem"
+				div.style.display = "flex"
+				div.style.alignItems = "center"
+				div.style.justifyContent = "center"
+				div.style.margin = "0 1rem 0 0"
+				div.textContent = office.office
+				div.style.backgroundColor = office.color
+				div.style.color = office.font
+				div.style.border = "1px solid black"
+				div.style.borderRadius = "5px"
+				explain.appendChild(div)
+			}
+			row.appendChild(explain)
+		}
+
 		for (const [index, card] of cards.entries()) {
 			clickCard(card);
 
@@ -425,22 +515,14 @@ async function categorizeCases(){
 				const textContainer = await waitForRecordHeaderText();
 				const targetText = textContainer.children[1]?.children[2]?.children[1]?.textContent?.trim();
 
-				console.log(`Card #${index + 1}:`, targetText);
 
-				if (targetText === "NOTAM Office") {
-					card.style.borderLeft = "5px solid yellow";
-				}
-				if (targetText === "KOSIF") {
-					card.style.borderLeft = "5px solid green";
-				}
-				if (targetText === "Skybriefing & ARO") {
-					card.style.borderLeft = "5px solid blue";
-				}
-				if (targetText === "AIS") {
-					card.style.borderLeft = "5px solid grey";
+				for (const office of offices){
+					if (targetText === office.office) {
+						card.style.borderLeft = `5px solid ${office.color}`;
+					}
 				}
 			} catch (err) {
-				console.warn(`Card #${index + 1}:`, err);
+
 			}
 		}
 }
@@ -449,14 +531,16 @@ async function categorizeCases(){
 (async () => {
 	// Checks the toggle state and either starts or ends the Mutation Observer
 	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues", "status_yonderColors", "status_caseCategories"])
-console.log(result)
+
 	window.addEventListener('hashchange', () => {
   		mutationObserver_YonderColors(result.status_yonderColors[0] === "1" ? "on" : "off")
 	});
 
 	navigation.addEventListener("navigate", async () =>{
-		console.log("NAVIGATE")
-		categorizeCases()
+		
+		if(result.status_caseCategories && result.status_caseCategories[0] === "1"){
+			categorizeCases()
+		}
 	})
 
 
@@ -511,7 +595,6 @@ console.log(result)
 			}
 			if (dockerBarProcessed && dockerWindowProcessed) {
                 observer_docker.disconnect();
-                console.log("observer_docker disconnected after processing both elements.");
             }
 		})
 
@@ -527,8 +610,43 @@ console.log(result)
 	}
 
 	if(result.status_caseCategories && result.status_caseCategories[0] === "1"){
-		categorizeCases()
-	}
+		let categorizeTimeout = null;
+
+		const kanbanColumns = await searchKanban();
+
+		for (const kanbanColumn of kanbanColumns) {
+			const observer = new MutationObserver((mutationsList, observer) => {
+				let cardsAddedOrRemoved = false;
+
+				for (const mutation of mutationsList) {
+					if (
+						mutation.type === 'childList' &&
+						(mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)
+					) {
+						cardsAddedOrRemoved = true;
+						break;
+					}
+				}
+
+				if (cardsAddedOrRemoved) {
+					console.log('Cards added or removed. Re-categorizing...');
+
+					// Debounce categorizeCases
+					clearTimeout(categorizeTimeout); // clear previous timeout if any
+					categorizeTimeout = setTimeout(() => {
+						categorizeCases();
+					}, 1000); // Adjust delay as needed
+				}
+			});
+
+			// Start observing the target element for configured mutations
+			observer.observe(kanbanColumn.children[0].children[1].children[0], {
+				childList: true,
+				subtree: true
+			});
+
+		}
+}
 
 	if(result.status_caseCategories && result.status_caseCategories[0] === "0"){
 		const cards = await searchCards()
@@ -625,6 +743,7 @@ chrome.runtime.onMessage.addListener(async function(request, sender, sendRespons
 		categorizeCases()
 	}
 	if(request.toggle_caseCategories === "off"){
+		document.querySelector(".slds-grid.slds-media__body").removeChild(document.querySelector(".caseCategoryHelp"))
 		const cards = await searchCards()
 		for (const [index, card] of cards.entries()) {
 			card.style.borderLeft = ""
