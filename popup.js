@@ -2,16 +2,28 @@ const toggle_declutterer = document.getElementById("toggle_declutterer");
 const toggle_docker = document.getElementById("toggle_docker");
 const toggle_softphoneQueues = document.getElementById("toggle_softphoneQueues");
 const toggle_yonderColors = document.getElementById("toggle_yonderColors")
+const toggle_caseCategories = document.getElementById("toggle_caseCategories")
 
 const toggleButton_declutterer = document.getElementById("overlay_declutterer");
 const toggleButton_docker = document.getElementById("overlay_docker");
 const toggleButton_softphoneQueues = document.getElementById("overlay_softphoneQueues");
 const toggleButton_yonderColors = document.getElementById("overlay_yonderColors");
+const toggleButton_caseCategories = document.getElementById("overlay_caseCategories");
 
 const indicator_declutterer = document.getElementById("overlay_declutterer_indicatorc:\Users\weberml\OneDrive - Skyguide\Documents\Stuff\Private\JS Tests\Extensions\AIS QoL\popup.html");
 const indicator_docker = document.getElementById("overlay_docker_indicator");
 const indicator_softphoneQueues = document.getElementById("overlay_softphoneQueues_indicator")
 const indicator_yonderColors = document.getElementById("overlay_yonderColors_indicator")
+const indicator_caseCategories = document.getElementById("overlay_caseCategories_indicator")
+
+const helpTextTemplates = {
+
+	declutterer: "Creates an additional button inside an Email Case Text that when pressed leads to a better formatted Case Print View",
+	softphoneQueues: "Colorizes the Softphone Queue Status in the colors of the Shift Plan - Light Blue for On Queue, Dark Grene for Available and Red for all other statuses",
+	docker: "Moves the Softphone Control Window to the right side of the screen when toggled on, and to the left (default) when toggled off",
+	caseCategories: "Experimental: Colorizes the Case Cards in Kanban View of All Open Cases according to their Helpdesk. This takes some time to execute and may slow the system down",
+	yonderColors: "Adds some colors to the folder structure in the Library section in Yonder so its a bit less confusing",
+}
 
 // Returns current tab id
 async function getCurrentTab() {
@@ -63,8 +75,8 @@ function setTabStyle(target){
 	document.getElementById("tab_body_aimConnect").classList.add("visible")
 
 	// Gets and sets the toggle status
-	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues"])
-
+	const result = await chrome.storage.local.get(["status_declutterer", "status_docker", "status_softphoneQueues", "status_yonderColors", "status_caseCategories"])
+	setToggleStyle("caseCategories", "0")
 	if(result.status_declutterer === undefined || result.status_declutterer[0] === "0"){
 		toggle_declutterer.value = 0
 		setToggleStyle("declutterer", "0")
@@ -90,6 +102,24 @@ function setTabStyle(target){
 	} else if(result.status_softphoneQueues[0] === "1"){
 		toggle_softphoneQueues.value = 1
 		setToggleStyle("softphoneQueues", "1")
+	}
+
+	if(result.status_yonderColors === undefined || result.status_yonderColors[0] === "0"){
+		toggle_yonderColors.value = 0
+		setToggleStyle("yonderColors", "0")
+
+	} else if(result.status_yonderColors[0] === "1"){
+		toggle_yonderColors.value = 1
+		setToggleStyle("yonderColors", "1")
+	}
+
+	if(result.status_caseCategories === undefined || result.status_caseCategories[0] === "0"){
+		toggle_caseCategories.value = 0
+		setToggleStyle("caseCategories", "0")
+
+	} else if(result.status_caseCategories[0] === "1"){
+		toggle_caseCategories.value = 1
+		setToggleStyle("caseCategories", "1")
 	}
 })()
 
@@ -173,8 +203,52 @@ console.log("YONDERCLIK")
 	chrome.storage.local.set({ "status_yonderColors": [toggle_yonderColors.value, tab] })
 })
 
+document.getElementById("overlay_caseCategories").addEventListener("click", async function(){
+	const tab = await getCurrentTab()
+	console.log(tab)
+	if(toggle_caseCategories.value === "0"){
+		toggle_caseCategories.value = "1"
+		setToggleStyle("caseCategories", "1")
+		
+		const response = await chrome.tabs.sendMessage(tab, {toggle_caseCategories: "on"}).catch((e) => {console.log(e)});
+  	} else if(toggle_caseCategories.value === "1"){
+
+		toggle_caseCategories.value = "0"
+		setToggleStyle("caseCategories", "0")
+		
+		const response = await chrome.tabs.sendMessage(tab, {toggle_caseCategories: "off"}).catch((e) => {console.log(e)});
+    }
+
+	chrome.storage.local.set({ "status_caseCategories": [toggle_caseCategories.value, tab] })
+})
+
 document.querySelectorAll(".tab_row_item").forEach(function(item) {
     item.addEventListener("click", function(e) {
         setTabStyle(e.target);
     });
 });
+
+let selectedQuestionmark = null
+document.querySelectorAll(".questionmark").forEach((item) =>{
+	item.addEventListener("click", function(e){
+		const helpText = document.querySelector(".helpText")
+		if(selectedQuestionmark !== null && e.target.id.split("_")[1] === selectedQuestionmark.id.split("_")[1]){
+			helpText.classList.toggle("visible")
+		} else {
+			helpText.classList.remove("visible")
+			helpText.classList.add("visible")
+		}
+		
+		
+
+		selectedQuestionmark = document.getElementById(`help_${item.id.split("_")[1]}`)
+		const offsetY = selectedQuestionmark.getBoundingClientRect().top
+		const offsetX = selectedQuestionmark.getBoundingClientRect().right
+		console.log(offsetY, offsetX)
+		helpText.style.top = offsetY
+		helpText.style.left = offsetX
+		helpText.style.transform = "translate(-100%, -100%)"
+
+		document.getElementById("helpText_inner_text").innerText = helpTextTemplates[item.id.split("_")[1]]
+	})
+})
