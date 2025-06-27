@@ -144,76 +144,159 @@ function mutationObserver_SoftphoneQueues(){
     });
 }
 
-function colorYonderFolders(status){
-	const folder = document.querySelectorAll(".yonder-list-item");
+function getNotificationColor(type){
+	switch(type){
+		case "SO":
+			return color_redksy_100
+		case "WI":
+			return color_skyblue_100
+		case "GU":
+			return color_skylight_100
+		case "LI":
+			return color_aurora_100
+		case "CL":
+			return color_skylight_100
+		case "ATMM":
+			return color_skydarkblue_100
+		case "Yonder":
+			return color_sunset_100
+	}
+}
+
+function colorYonderNotifications(status, target){
+	if(status === "on"){
+		const notificationExplanation = document.createElement("div")
+		notificationExplanation.style.position = "absolute"
+		notificationExplanation.style.top = `${target.parentNode.getBoundingClientRect().top}px`
+		notificationExplanation.style.right = `${window.innerWidth - target.parentNode.getBoundingClientRect().right}px`
+		notificationExplanation.style.width = `${parseFloat(getComputedStyle(target.querySelector(".card-header")).width)+5}px`
+		notificationExplanation.style.padding ="10px"
+		notificationExplanation.style.display = "flex"
+		notificationExplanation.style.justifyContent = "space-between"
+		notificationExplanation.style.flexWrap = "nowrap"
+		notificationExplanation.style.transform = "translateY(-25%)"
+		notificationExplanation.className ="notificationExplanationContainer"
+		if(!target.parentNode.querySelector(".notificationExplanationContainer")){
+			target.parentNode.appendChild(notificationExplanation)
+			const items = ["SO", "WI", "GU", "LI", "CL", "ATMM", "Yonder"]
+			items.forEach(item =>{
+				const div = document.createElement("div")
+				div.innerText = item
+				div.style.background = getNotificationColor(item)
+				div.style.borderRadius = "15px"
+				div.style.display = "flex"
+				div.style.justifyContent = "center"
+				div.style.alignItems = "center"
+				div.style.width = "8ch"
+				div.style.color = "white"
+				div.style.textShadow = "1px 1px black"
+				notificationExplanation.appendChild(div)
+			})
+		}
+	} else if(status === "off"){
+		if(target.parentNode.querySelector(".notificationExplanationContainer")){
+			target.parentNode.querySelector(".notificationExplanationContainer").remove()
+		}
+	}
+	const folder = target.querySelectorAll(".yonder-list-item");
 	if (folder) {
-		const yonderFolders = document.querySelectorAll(".yonder-list-item")
+		const yonderFolders = target.querySelectorAll(".yonder-list-item")
 		yonderFolders.forEach(folder =>{
 			if(status === "on"){
-				if(folder.getAttribute("variant") === "folder"){
-					if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
-						folder.style.backgroundColor = color_skyblue_100
-						folder.children[1].children[0].style.color = "white" //TEXT
-						folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
-						if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
-							folder.style.marginLeft = "1rem"
-							folder.children[1].children[0].style.color = "" //TEXT
-							folder.style.backgroundColor = color_skylight_100
-							folder.children[0].children[0].children[0].setAttribute("fill", "rgba(0,0,0,0.54") //ICON FOLDER
-							
-						}
-						if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
-							folder.style.backgroundColor = color_skyblue_100
-							folder.children[2].children[0].children[0].setAttribute("fill", "white") //ICON BACK TO ROOT
-							folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
-							folder.style.marginLeft = ""
-							folder.children[1].children[0].style.color = "white" //TEXT
-							
-						} 
-						
-					} else {
-						folder.style.backgroundColor = color_skylight_100
+				if(folder.getAttribute("variant") === "notifications"){
+					if(folder.querySelector(".list-item-primary").innerText.startsWith("SO")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("SO")}`
 					}
-				} else {
-					if(folder.getAttribute("variant") === "folder"){
-						folder.style.marginLeft = "1rem"
+					if(folder.querySelector(".list-item-primary").innerText.startsWith("C3WI")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("WI")}`
+					}
+					if(folder.querySelector(".list-item-primary").innerText.startsWith("C3GU")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("GU")}`
+					}
+					if(folder.querySelector(".list-item-primary").innerText.startsWith("C3LI")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("LI")}`
+					}
+					if(folder.querySelector(".list-item-primary").innerText.startsWith("C3CL")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("CL")}`
+					}
+					if(folder.querySelector(".list-item-primary").innerText.startsWith("ATMM")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("ATMM")}`
+					}
+					if(folder.querySelector(".list-item-primary").innerText.includes("Yonder")){
+						folder.style.borderLeft = `10px solid ${getNotificationColor("Yonder")}`
 					}
 				}
-			} else {
-				if(folder.getAttribute("variant") === "folder"){
-					if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
-						folder.style.backgroundColor = ""
-						folder.children[1].children[0].style.color = "" //TEXT
-						folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
-						if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
-							folder.style.marginLeft = ""
-							folder.children[1].children[0].style.color = "" //TEXT
-							folder.style.backgroundColor = ""
-							folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
-							
-						}
-						if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
-							folder.style.backgroundColor = ""
-							folder.children[2].children[0].children[0].setAttribute("fill", "") //ICON BACK TO ROOT
-							folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
-							folder.style.marginLeft = ""
-							folder.children[1].children[0].style.color = "" //TEXT
-							
-						} 
-					} else {
-						folder.style.backgroundColor = ""
-					}
-				} else {
-					if(folder.getAttribute("variant") === "folder"){
-						folder.style.marginLeft = ""
-					}
+			} else if(status === "off"){
+				if(folder.getAttribute("variant") === "notifications"){
+					folder.style.borderLeft = ""
 				}
 			}
 		})
 	}
 }
 
-let observer_yonderColors = null
+function colorYonderFolders(status, target){
+	const folder = target.querySelectorAll(".yonder-list-item");
+	if (folder) {
+		const yonderFolders = target.querySelectorAll(".yonder-list-item")
+		yonderFolders.forEach(folder =>{
+			if(status === "on" && folder.getAttribute("variant") === "folder"){
+				if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
+					folder.style.backgroundColor = color_skyblue_100
+					folder.children[1].children[0].style.color = "white" //TEXT
+					folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
+					if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
+						folder.style.marginLeft = "1rem"
+						folder.children[1].children[0].style.color = "" //TEXT
+						folder.style.backgroundColor = color_skylight_100
+						folder.children[0].children[0].children[0].setAttribute("fill", "rgba(0,0,0,0.54") //ICON FOLDER
+						
+					}
+					if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
+						folder.style.backgroundColor = color_skyblue_100
+						folder.children[2].children[0].children[0].setAttribute("fill", "white") //ICON BACK TO ROOT
+						folder.children[0].children[0].children[0].setAttribute("fill", "white") //ICON FOLDER
+						folder.style.marginLeft = ""
+						folder.children[1].children[0].style.color = "white" //TEXT
+						
+					} 
+				} else {
+					folder.style.backgroundColor = color_skylight_100
+				}
+			} else if(status === "on") {
+				folder.style.marginLeft = "1rem"
+			} else if(status === "off" && folder.getAttribute("variant") === "folder"){
+				if(folder.classList.contains("current-folder") || folder.getAttribute("index") !== null || folder.classList.contains("opened-folder")){
+					folder.style.backgroundColor = ""
+					folder.children[1].children[0].style.color = "" //TEXT
+					folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
+					if(folder.getAttribute("index") === null && folder.classList.contains("current-folder")){
+						folder.style.marginLeft = ""
+						folder.children[1].children[0].style.color = "" //TEXT
+						folder.style.backgroundColor = ""
+						folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
+						
+					}
+					if(folder.children[2] && folder.children[2].getAttribute("data-testid") === "backToRootFolder"){
+						folder.style.backgroundColor = ""
+						folder.children[2].children[0].children[0].setAttribute("fill", "") //ICON BACK TO ROOT
+						folder.children[0].children[0].children[0].setAttribute("fill", "") //ICON FOLDER
+						folder.style.marginLeft = ""
+						folder.children[1].children[0].style.color = "" //TEXT
+						
+					} 
+				} else {
+					folder.style.backgroundColor = ""
+				}
+			} else if(status === "off"){
+				folder.style.marginLeft = ""
+			}
+		})
+	}
+}
+
+let observer_yonderColors_folders = null
+let observer_yonderColors_notifications = null
 function mutationObserver_YonderColors(status){
     // Wait until document is fully loaded
     if (document.readyState === "loading") {
@@ -222,24 +305,40 @@ function mutationObserver_YonderColors(status){
     }
 
     // Define target node that contains the softphone queue UI (adjust this as needed)
-    const targetNode = document.querySelector(".dashboard-card"); // You may want to narrow this down if possible
+    const targetNode = document.querySelectorAll(".dashboard-card"); // You may want to narrow this down if possible
 
 	if(status === "on"){
-		colorYonderFolders("on")
-    	observer_yonderColors = new MutationObserver(mutations => {
-        	console.log("YonderColors Mutations checked");
-        	colorYonderFolders("on")
-    	});
 		if(targetNode){
-			observer_yonderColors.observe(targetNode, {
+			colorYonderFolders("on", targetNode[0])
+			colorYonderNotifications("on", targetNode[2])
+
+			observer_yonderColors_folders = new MutationObserver(mutations => {
+				colorYonderFolders("on", targetNode[0])
+			});
+			observer_yonderColors_notifications = new MutationObserver(mutations => {
+				colorYonderNotifications("on", targetNode[2])
+			});
+		}
+
+
+		if(targetNode){
+			observer_yonderColors_folders.observe(targetNode[0], {
+				childList: true,
+				subtree: true,
+				characterData: true
+			});
+			observer_yonderColors_notifications.observe(targetNode[2], {
 				childList: true,
 				subtree: true,
 				characterData: true
 			});
 		}
+		
 	} else {
-		observer_yonderColors.disconnect()
-		colorYonderFolders("off")
+		observer_yonderColors_folders.disconnect()
+		observer_yonderColors_notifications.disconnect()
+		colorYonderFolders("off", targetNode[0])
+		colorYonderNotifications("off", targetNode[2])
 	}
 }
 
@@ -250,7 +349,7 @@ function mutationObserver_YonderColors(status){
 
 	window.addEventListener('hashchange', () => {
   		console.log('Hash changed!', window.location.hash);
-  		mutationObserver_YonderColors(result.status_yonderColors === "1" ? "on" : "off")
+  		mutationObserver_YonderColors(result.status_yonderColors[0] === "1" ? "on" : "off")
 });
 
 	if(result.status_declutterer && result.status_declutterer[0] === "1"){
